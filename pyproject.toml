@@ -1,0 +1,25 @@
+[tool.black]
+line-length = 120
+[tool.isort]
+profile = 'black'
+line_length = 120
+force_single_line = true
+skip_glob = [".env"]
+[tool.pylint.'MASTER']
+max-line-length=120
+[tool.pylint.messages_control]
+disable =[
+    'fixme',
+    'import-error',
+    'invalid-name',
+    "missing-module-docstring",
+    'raise-missing-from',
+    'R0801',  # Similar lines in <x> files
+    'too-few-public-methods',
+    'too-many-locals',
+    'too-many-arguments',
+    'too-many-instance-attributes',
+    'ungrouped-imports',
+    'unused-argument',
+    'wrong-import-order',
+]

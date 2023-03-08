@@ -1,0 +1,4 @@
+viktor==13.7.2
+folium==0.14.0
+geopandas==0.12.2
+OWSLib==0.28.1
