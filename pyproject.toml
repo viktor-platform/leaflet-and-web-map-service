@@ -12,6 +12,7 @@ disable =[
     'fixme',
     'import-error',
     'invalid-name',
+    'line-too-long',
     "missing-module-docstring",
     'raise-missing-from',
     'R0801',  # Similar lines in <x> files
