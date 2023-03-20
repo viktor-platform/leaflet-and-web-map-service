@@ -13,6 +13,7 @@ SOFTWARE.
 """
 
 from io import StringIO, BytesIO
+from pathlib import Path
 
 import lxml
 
@@ -83,53 +84,53 @@ def get_WMS_details(wms: WebMapService) -> dict:
 class Parametrization(ViktorParametrization):
     """Parametrization for the sample Leaflet app."""
 
-    introduction = Step("Leaflet", views=["leaflet_introduction"])
+    introduction = Step("Introduction", views=["leaflet_introduction"])
     introduction.welcome_text = Text(
-        "# Leaflet in VIKTOR  \n"
-        "Welcome to the Leaflet app. In this app the advantages of leaflet in VIKTOR are "
-        "shown. Also, instructions are provided on how to add your own WMS-layer to a "
-        "map.  \n "
+        "# WMS in VIKTOR  \n"
+        "Welcome to the WMS app. In this app is shown how WMS layers are added to a VIKTOR app. This is done using the "
+        "Python package Folium and Leaflet."
         "  \n"
-        "This app is created for those who want to learn more about creating advanced maps. \n"
-        " ## Why leaflet?  \n"
-        "[Leaflet](https://leafletjs.com/) is a powerful open-source JavaScript library for "
-        "interactive maps. It can be used to create more advanced maps in your app. Some of its "
-        "features:  \n"
+        "## What is WMS?  \n"
+        "A WMS (Web Map Service) layer is a type of GIS data layer that allows users to request and "
+        "receive map images over the internet.  \n"
+        "The main advantage of a WMS-layer is that it ensures the data is always up-to-date, since the "
+        "source of the data is located in one place. Additionally, since WMS is hosted, it is not neceassary to host "
+        "it yourself. In the Netherlands, [PDOK](https://www.pdok.nl/datasets) is "
+        "the main provider of public WMS-layers. \n"
+        "  \n"
+        " ## Leaflet  \n"
+        "WMS layers can be added using the powerful open-source JavaScript library [Leaflet](https://leafletjs.com/). "
+        "Some of its features include:  \n"
         "- WMS layers  \n"
         "- Layering  \n"
+        "- Advanced drawing tools  \n"
         "- Custom baselayers  \n"
         "- ArcGIS connection \n"
         "- Much more...  \n"
         "  \n"
+        "On the right-hand side an example of a Leaflet map is shown.  \n"
+        "  \n"
         "**JavaScript? No Python?**  \n"
-        "So actually it is possible to create a leaflet map with only Python, thanks to "
+        "So actually it is possible to create a Leaflet map with only Python, thanks to "
         "[Folium](https://pypi.org/project/folium/). Easy!"
     )
 
     wms_details = Step("WMS set-up", views=["show_wms_details"], on_next=_validate_wms_details)
     wms_details.text = Text(
         "# WMS set-up  \n"
-        "In this step we will gather the required information to add your own WMS-layer to your map.  \n"
-        "## What is WMS?  \n"
-        "A WMS (Web Map Service) layer is a type of GIS data layer that allows users to request and "
-        "receive map images over the internet.  \n"
-        "The main advantage of a WMS-layer is that it ensures the data is always up-to-date, since the "
-        "source of the data is located in one place. Additionally, since WMS is hosted, it is not neceassary to host "
-        "it yourself.  \n"
-        "  \n"
-        "There are a lot of public WMS-layers available. In the Netherlands, [PDOK](https://www.pdok.nl/datasets) is "
-        "the main provider of public WMS-layers.  \n"
+        "In this step we will gather the information required in order to add your own WMS-layer to your map.  \n"
         "## WMS in Leaflet  \n"
         "In order to add WMS-layers to Leaflet, we need obtain some information from the WMS-layer first. "
         "Luckily, we can all do that within this app, making use of the Python package "
-        "[OWSLib](https://pypi.org/project/OWSLib/)."
+        "[OWSLib](https://pypi.org/project/OWSLib/). "
         "We need to obtain the base url, layer names and set the format. For more information, check out this "
         "[tutorial](https://leafletjs.com/examples/wms/wms.html).  \n"
         "- **Base url**: The base url is the url of the WMS, without the 'getcapabilities' part. \n"
         "- **Layers**: A WMS-layer can contain multiple layers. For example: streets, houses, etc.  \n"
         "- **Format**: The format in which the layer is retrieved. Most common is png.  \n"
         "## WMS input  \n"
-        "Please provide the WMS url below. A sample of a WMS url can be used by clicking on the button below."
+        "Please provide the WMS url below. When filled in the base url, layers and name of the WMS layer will appear "
+        "on the right-hand side. A sample of a WMS url can be used by clicking on the button below."
     )
     wms_details.set_sample_wms = SetParamsButton("Use sample WMS", "set_sample_wms")
     wms_details.wms_input = TextField("WMS url", description="Please enter the WMS url here", flex=100)
@@ -146,7 +147,7 @@ class Parametrization(ViktorParametrization):
         description="Format of data of the WMS. More options are generally available, but to keep it simple only png "
         "and jpg are included in this app. Default is png.",
     )
-    wms_map = Step("Custom WMS", views=["custom_wms_map"])
+    wms_map = Step("Custom WMS", views=["custom_wms_map"], next_label="What's next?")
     wms_map.text = Text(
         "# Custom WMS map  \n"
         "Now everything is set up, the WMS-layer can be added to the map. Just select the layers to display on the map."
@@ -157,6 +158,8 @@ class Parametrization(ViktorParametrization):
         "appear on the map.*"
     )
     wms_map.layer_options = MultiSelectField("Display layers", options=_get_layer_options)
+
+    final_step = Step("What's next", views=["final_step"])
 
 
 class Controller(ViktorController):
@@ -278,3 +281,11 @@ class Controller(ViktorController):
         html_result = BytesIO()
         m.save(html_result, close_file=False)
         return WebResult(html=StringIO(html_result.getvalue().decode("utf-8")))
+
+    @WebView("What's next?", duration_guess=1)
+    def final_step(self, params, **kwargs):
+        """Initiates the process of rendering the last step."""
+        html_path = Path(__file__).parent / "final_step.html"
+        with html_path.open() as f:
+            html_string = f.read()  # TODO: aanpassen github link
+        return WebResult(html=html_string)
