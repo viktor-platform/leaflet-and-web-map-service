@@ -25,7 +25,7 @@ provide the link to the WMS-layer and all the information of the WMS-layer appea
 information can be used in your own app to add your WMS-layer to your map.
 ![](resources/upload-file.gif)
 
-### Step 2: Add WMS layer to map
+### Step 3: Add WMS layer to map
 Finally, the WMS layers are added to the map. Depending on the WMS-layer you provided, the available layers can be 
 selected in the drop-down menu. Once selected, the map will automatically reload and display the layers on the map.
 ![](resources/set-filter.gif)
