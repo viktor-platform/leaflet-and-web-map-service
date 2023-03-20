@@ -12,7 +12,7 @@ In this application the following functionalities are demonstrated:
 - Retrieve information from a WMS-layer 
 - Add WMS-layer to a map
 
-A published version of this app is available on [demo.viktor.ai](https://demo.viktor.ai/public/gis-analysis).
+A published version of this app is available on [demo.viktor.ai](https://demo.viktor.ai/public/wms-app).
 
 ### Step 1: Introduction to Leaflet
 In the first step a short explanation is given about what Leaflet is. Also, a sample Leaflet map is shown with some of 

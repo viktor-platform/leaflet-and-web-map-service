@@ -30,9 +30,9 @@ from viktor.parametrization import (
     Text,
     MultiSelectField,
     Step,
-    TextField,
     OptionField,
     SetParamsButton,
+    TextAreaField,
 )
 from viktor.result import SetParamsResult
 from viktor.views import WebView, WebResult, DataView, DataResult, DataItem, DataGroup
@@ -133,7 +133,7 @@ class Parametrization(ViktorParametrization):
         "on the right-hand side. A sample of a WMS url can be used by clicking on the button below."
     )
     wms_details.set_sample_wms = SetParamsButton("Use sample WMS", "set_sample_wms")
-    wms_details.wms_input = TextField("WMS url", description="Please enter the WMS url here", flex=100)
+    wms_details.wms_input = TextAreaField("WMS url", description="Please enter the WMS url here", flex=100)
     wms_details.wms_version = OptionField(
         "WMS version",
         options=["1.1.1", "1.3.0"],
@@ -287,5 +287,5 @@ class Controller(ViktorController):
         """Initiates the process of rendering the last step."""
         html_path = Path(__file__).parent / "final_step.html"
         with html_path.open() as f:
-            html_string = f.read()  # TODO: aanpassen github link
+            html_string = f.read()
         return WebResult(html=html_string)
