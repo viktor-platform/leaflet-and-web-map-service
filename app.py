@@ -95,8 +95,7 @@ class Parametrization(ViktorParametrization):
         "receive map images over the internet.  \n"
         "The main advantage of a WMS-layer is that it ensures the data is always up-to-date, since the "
         "source of the data is located in one place. Additionally, since WMS is hosted, it is not neceassary to host "
-        "it yourself. In the Netherlands, [PDOK](https://www.pdok.nl/datasets) is "
-        "the main provider of public WMS-layers. \n"
+        "it yourself.  \n"
         "  \n"
         " ## Leaflet  \n"
         "WMS layers can be added using the powerful open-source JavaScript library [Leaflet](https://leafletjs.com/). "
@@ -130,7 +129,10 @@ class Parametrization(ViktorParametrization):
         "- **Format**: The format in which the layer is retrieved. Most common is png.  \n"
         "## WMS input  \n"
         "Please provide the WMS url below. When filled in the base url, layers and name of the WMS layer will appear "
-        "on the right-hand side. A sample of a WMS url can be used by clicking on the button below."
+        "on the right-hand side. A sample of a WMS url can be used by clicking on the button below.  \n"
+        "  \n"
+        "In the Netherlands, [PDOK](https://www.pdok.nl/datasets) is the main provider of public WMS-layers. A lot"
+        " of interesting examples can be found on their website. \n"
     )
     wms_details.set_sample_wms = SetParamsButton("Use sample WMS", "set_sample_wms")
     wms_details.wms_input = TextAreaField("WMS url", description="Please enter the WMS url here", flex=100)
