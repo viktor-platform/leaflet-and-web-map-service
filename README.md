@@ -34,4 +34,5 @@ selected in the drop-down menu. Once selected, the map will automatically reload
 ![Step3](.viktor-template/step3.gif "Step 3")
 
 ## App structure
+
 This is an editor-only app type.
