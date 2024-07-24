@@ -1,9 +1,10 @@
 from io import BytesIO
 from io import StringIO
-from pathlib import Path
 
+import folium.plugins
 from viktor import UserError
 from viktor import ViktorController
+from viktor.core import File
 from viktor.parametrization import MultiSelectField
 from viktor.parametrization import OptionField
 from viktor.parametrization import SetParamsButton
@@ -19,11 +20,9 @@ from viktor.views import DataView
 from viktor.views import WebResult
 from viktor.views import WebView
 
-# folium and owslib
+# other third parties
 import folium
 import lxml
-from folium import plugins
-from munch import Munch
 from owslib.wms import WebMapService
 from requests import RequestException
 
@@ -31,7 +30,7 @@ from requests import RequestException
 WMS_DEFAULT = "https://service.pdok.nl/wandelnet/regionale-wandelnetwerken/wms/v1_0?version=1.3.0&request=getcapabilities&service=wms"
 
 
-def _get_layer_options(params: Munch, **kwargs) -> list:
+def _get_layer_options(params, **kwargs) -> list:
     """Get layer options from connected WMS-layer"""
     layers = []
     if params.wms_details.wms_input:
@@ -45,7 +44,7 @@ def _get_layer_options(params: Munch, **kwargs) -> list:
     return layers
 
 
-def _validate_wms_details(params: Munch, **kwargs) -> None:
+def _validate_wms_details(params, **kwargs) -> None:
     """Validates the WMS input, before the user is allowed to go to the next step."""
     try:
         WebMapService(params.wms_details.wms_input, params.wms_details.wms_version)
@@ -162,7 +161,7 @@ class Controller(ViktorController):
     parametrization = Parametrization
 
     @WebView("Leaflet sample map", duration_guess=1)
-    def leaflet_introduction(self, params: Munch, **kwargs) -> WebResult:
+    def leaflet_introduction(self, params, **kwargs) -> WebResult:
         """Create and show a sample leaflet map"""
         m = folium.Map(location=[51.922408, 4.4695292], zoom_start=13)
         folium.TileLayer(
@@ -215,19 +214,19 @@ class Controller(ViktorController):
             show=True,
             version="1.3.0",
         ).add_to(m)
-        draw = plugins.Draw(export=True)
+        draw = folium.plugins.Draw(export=True)
         draw.add_to(m)
         folium.LayerControl().add_to(m)
-        html_result = BytesIO()
-        m.save(html_result, close_file=False)
-        return WebResult(html=StringIO(html_result.getvalue().decode("utf-8")))
+        html_result = File()
+        m.save(html_result.source)
+        return WebResult(html=html_result)
 
-    def set_sample_wms(self, params: Munch, **kwargs) -> SetParamsResult:
+    def set_sample_wms(self, params, **kwargs) -> SetParamsResult:
         """Fills in the sample WMS to the params"""
         return SetParamsResult({"wms_details": {"wms_input": WMS_DEFAULT}})
 
     @DataView("WMS details", duration_guess=1)
-    def show_wms_details(self, params: Munch, **kwargs) -> DataResult:
+    def show_wms_details(self, params, **kwargs) -> DataResult:
         """Shows the details of the WMS layer, such as the base url, layers and the name."""
         if not params.wms_details.wms_input:
             data = DataGroup(DataItem("Pleas enter a WMS url", None))
@@ -251,7 +250,7 @@ class Controller(ViktorController):
         return DataResult(data)
 
     @WebView("Custom WMS map", duration_guess=1)
-    def custom_wms_map(self, params: Munch, **kwargs) -> WebResult:
+    def custom_wms_map(self, params, **kwargs) -> WebResult:
         """Creates a map with the WMS-layer, as specified by the user."""
         m = folium.Map(location=[51.922408, 4.4695292], zoom_start=13)
         wms = connect_to_WMS(params.wms_details.wms_input, params.wms_details.wms_version)
