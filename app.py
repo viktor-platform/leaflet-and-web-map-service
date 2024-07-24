@@ -1,27 +1,32 @@
-from io import StringIO, BytesIO
+from io import BytesIO
+from io import StringIO
 from pathlib import Path
 
-import lxml
-
-from owslib.wms import WebMapService
-
-import folium
-from folium import plugins
-
-from munch import Munch
-from requests import RequestException
-from viktor import ViktorController, UserError
-from viktor.parametrization import (
-    ViktorParametrization,
-    Text,
-    MultiSelectField,
-    Step,
-    OptionField,
-    SetParamsButton,
-    TextAreaField,
-)
+from viktor import UserError
+from viktor import ViktorController
+from viktor.parametrization import MultiSelectField
+from viktor.parametrization import OptionField
+from viktor.parametrization import SetParamsButton
+from viktor.parametrization import Step
+from viktor.parametrization import Text
+from viktor.parametrization import TextAreaField
+from viktor.parametrization import ViktorParametrization
 from viktor.result import SetParamsResult
-from viktor.views import WebView, WebResult, DataView, DataResult, DataItem, DataGroup
+from viktor.views import DataGroup
+from viktor.views import DataItem
+from viktor.views import DataResult
+from viktor.views import DataView
+from viktor.views import WebResult
+from viktor.views import WebView
+
+# folium and owslib
+import folium
+import lxml
+from folium import plugins
+from munch import Munch
+from owslib.wms import WebMapService
+from requests import RequestException
+
 
 WMS_DEFAULT = "https://service.pdok.nl/wandelnet/regionale-wandelnetwerken/wms/v1_0?version=1.3.0&request=getcapabilities&service=wms"
 
@@ -155,7 +160,7 @@ class Controller(ViktorController):
 
     viktor_enforce_field_constraints = True  # Resolves upgrade instruction https://docs.viktor.ai/sdk/upgrades#U83
 
-    label = "My Entity Type"
+    label = "WMS map controller"
     parametrization = Parametrization
 
     @WebView("Leaflet sample map", duration_guess=1)
