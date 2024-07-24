@@ -1,5 +1,6 @@
 viktor==14.13.0
-folium==0.14.0
-geopandas==0.12.2
-OWSLib==0.28.1
-numpy==1.26.4
+folium==0.17.0
+geopandas==1.0.1
+OWSLib==0.31.0
+lxml==5.2.2
+requests==2.32.2
