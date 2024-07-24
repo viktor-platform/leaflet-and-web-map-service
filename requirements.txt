@@ -2,3 +2,4 @@ viktor==14.0.0
 folium==0.14.0
 geopandas==0.12.2
 OWSLib==0.28.1
+numpy==1.26.4
