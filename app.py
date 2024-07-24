@@ -1,17 +1,3 @@
-"""Copyright (c) 2022 VIKTOR B.V.
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
-rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
-persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
-Software.
-VIKTOR B.V. PROVIDES THIS SOFTWARE ON AN "AS IS" BASIS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
-
 from io import StringIO, BytesIO
 from pathlib import Path
 
@@ -57,7 +43,7 @@ def _get_layer_options(params: Munch, **kwargs) -> list:
 def _validate_wms_details(params: Munch, **kwargs) -> None:
     """Validates the WMS input, before the user is allowed to go to the next step."""
     try:
-        _ = WebMapService(params.wms_details.wms_input, params.wms_details.wms_version)
+        WebMapService(params.wms_details.wms_input, params.wms_details.wms_version)
     except (RequestException, lxml.etree.XMLSyntaxError):
         raise UserError("Please enter a valid WMS-url first. Click on the button 'Use sample WMS' for an example.")
 
