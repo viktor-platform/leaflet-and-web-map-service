@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/SDK-v14.0.0-blue) <Please check version is the same as specified in requirements.txt>
+![](https://img.shields.io/badge/SDK-v14.13.0-blue) <Please check version is the same as specified in requirements.txt>
 
 # WMS in Viktor
 This sample app demonstrates how to add WMS-layers to a VIKTOR app.
