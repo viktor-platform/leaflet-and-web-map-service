@@ -140,7 +140,7 @@ class Parametrization(ViktorParametrization):
         description="Format of data of the WMS. More options are generally available, but to keep it simple only png "
         "and jpg are included in this app. Default is png.",
     )
-    wms_map = Step("Custom WMS", views=["custom_wms_map"], next_label="What's next?")
+    wms_map = Step("Custom WMS", views=["custom_wms_map"])
     wms_map.text = Text(
         "# Custom WMS map  \n"
         "Now everything is set up, the WMS-layer can be added to the map. Just select the layers to display on the map."
@@ -151,8 +151,6 @@ class Parametrization(ViktorParametrization):
         "appear on the map.*"
     )
     wms_map.layer_options = MultiSelectField("Display layers", options=_get_layer_options)
-
-    final_step = Step("What's next", views=["final_step"])
 
 
 class Controller(ViktorController):
@@ -274,11 +272,3 @@ class Controller(ViktorController):
         html_result = BytesIO()
         m.save(html_result, close_file=False)
         return WebResult(html=StringIO(html_result.getvalue().decode("utf-8")))
-
-    @WebView("What's next?", duration_guess=1)
-    def final_step(self, params, **kwargs):
-        """Initiates the process of rendering the last step."""
-        html_path = Path(__file__).parent / "final_step.html"
-        with html_path.open() as f:
-            html_string = f.read()
-        return WebResult(html=html_string)
