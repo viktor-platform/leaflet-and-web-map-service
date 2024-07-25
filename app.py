@@ -1,46 +1,32 @@
-"""Copyright (c) 2022 VIKTOR B.V.
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
-rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
-persons to whom the Software is furnished to do so, subject to the following conditions:
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
-Software.
-VIKTOR B.V. PROVIDES THIS SOFTWARE ON AN "AS IS" BASIS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-"""
-
-from io import StringIO, BytesIO
-from pathlib import Path
-
-import lxml
-
-from owslib.wms import WebMapService
-
 import folium
-from folium import plugins
-
-from munch import Munch
+from folium.plugins import Draw
+import lxml
+from owslib.wms import WebMapService
 from requests import RequestException
-from viktor import ViktorController, UserError
-from viktor.parametrization import (
-    ViktorParametrization,
-    Text,
-    MultiSelectField,
-    Step,
-    OptionField,
-    SetParamsButton,
-    TextAreaField,
-)
+
+from viktor import UserError
+from viktor import ViktorController
+from viktor.core import File
+from viktor.parametrization import MultiSelectField
+from viktor.parametrization import OptionField
+from viktor.parametrization import SetParamsButton
+from viktor.parametrization import Step
+from viktor.parametrization import Text
+from viktor.parametrization import TextAreaField
+from viktor.parametrization import ViktorParametrization
 from viktor.result import SetParamsResult
-from viktor.views import WebView, WebResult, DataView, DataResult, DataItem, DataGroup
+from viktor.views import DataGroup
+from viktor.views import DataItem
+from viktor.views import DataResult
+from viktor.views import DataView
+from viktor.views import WebResult
+from viktor.views import WebView
+
 
 WMS_DEFAULT = "https://service.pdok.nl/wandelnet/regionale-wandelnetwerken/wms/v1_0?version=1.3.0&request=getcapabilities&service=wms"
 
 
-def _get_layer_options(params: Munch, **kwargs) -> list:
+def _get_layer_options(params, **kwargs) -> list:
     """Get layer options from connected WMS-layer"""
     layers = []
     if params.wms_details.wms_input:
@@ -54,10 +40,10 @@ def _get_layer_options(params: Munch, **kwargs) -> list:
     return layers
 
 
-def _validate_wms_details(params: Munch, **kwargs) -> None:
+def _validate_wms_details(params, **kwargs) -> None:
     """Validates the WMS input, before the user is allowed to go to the next step."""
     try:
-        _ = WebMapService(params.wms_details.wms_input, params.wms_details.wms_version)
+        WebMapService(params.wms_details.wms_input, params.wms_details.wms_version)
     except (RequestException, lxml.etree.XMLSyntaxError):
         raise UserError("Please enter a valid WMS-url first. Click on the button 'Use sample WMS' for an example.")
 
@@ -149,7 +135,7 @@ class Parametrization(ViktorParametrization):
         description="Format of data of the WMS. More options are generally available, but to keep it simple only png "
         "and jpg are included in this app. Default is png.",
     )
-    wms_map = Step("Custom WMS", views=["custom_wms_map"], next_label="What's next?")
+    wms_map = Step("Custom WMS", views=["custom_wms_map"])
     wms_map.text = Text(
         "# Custom WMS map  \n"
         "Now everything is set up, the WMS-layer can be added to the map. Just select the layers to display on the map."
@@ -161,19 +147,17 @@ class Parametrization(ViktorParametrization):
     )
     wms_map.layer_options = MultiSelectField("Display layers", options=_get_layer_options)
 
-    final_step = Step("What's next", views=["final_step"])
-
 
 class Controller(ViktorController):
     """Controller for the sample Leaflet app."""
 
     viktor_enforce_field_constraints = True  # Resolves upgrade instruction https://docs.viktor.ai/sdk/upgrades#U83
 
-    label = "My Entity Type"
+    label = "WMS map controller"
     parametrization = Parametrization
 
     @WebView("Leaflet sample map", duration_guess=1)
-    def leaflet_introduction(self, params: Munch, **kwargs) -> WebResult:
+    def leaflet_introduction(self, params, **kwargs) -> WebResult:
         """Create and show a sample leaflet map"""
         m = folium.Map(location=[51.922408, 4.4695292], zoom_start=13)
         folium.TileLayer(
@@ -226,19 +210,19 @@ class Controller(ViktorController):
             show=True,
             version="1.3.0",
         ).add_to(m)
-        draw = plugins.Draw(export=True)
+        draw = Draw(export=True)
         draw.add_to(m)
         folium.LayerControl().add_to(m)
-        html_result = BytesIO()
-        m.save(html_result, close_file=False)
-        return WebResult(html=StringIO(html_result.getvalue().decode("utf-8")))
+        html_result = File()
+        m.save(html_result.source)
+        return WebResult(html=html_result)
 
-    def set_sample_wms(self, params: Munch, **kwargs) -> SetParamsResult:
+    def set_sample_wms(self, params, **kwargs) -> SetParamsResult:
         """Fills in the sample WMS to the params"""
         return SetParamsResult({"wms_details": {"wms_input": WMS_DEFAULT}})
 
     @DataView("WMS details", duration_guess=1)
-    def show_wms_details(self, params: Munch, **kwargs) -> DataResult:
+    def show_wms_details(self, params, **kwargs) -> DataResult:
         """Shows the details of the WMS layer, such as the base url, layers and the name."""
         if not params.wms_details.wms_input:
             data = DataGroup(DataItem("Pleas enter a WMS url", None))
@@ -262,7 +246,7 @@ class Controller(ViktorController):
         return DataResult(data)
 
     @WebView("Custom WMS map", duration_guess=1)
-    def custom_wms_map(self, params: Munch, **kwargs) -> WebResult:
+    def custom_wms_map(self, params, **kwargs) -> WebResult:
         """Creates a map with the WMS-layer, as specified by the user."""
         m = folium.Map(location=[51.922408, 4.4695292], zoom_start=13)
         wms = connect_to_WMS(params.wms_details.wms_input, params.wms_details.wms_version)
@@ -280,14 +264,6 @@ class Controller(ViktorController):
             version=params.wms_details.wms_version,
         ).add_to(m)
         folium.LayerControl().add_to(m)
-        html_result = BytesIO()
-        m.save(html_result, close_file=False)
-        return WebResult(html=StringIO(html_result.getvalue().decode("utf-8")))
-
-    @WebView("What's next?", duration_guess=1)
-    def final_step(self, params, **kwargs):
-        """Initiates the process of rendering the last step."""
-        html_path = Path(__file__).parent / "final_step.html"
-        with html_path.open() as f:
-            html_string = f.read()
-        return WebResult(html=html_string)
+        html_result = File()
+        m.save(html_result.source)
+        return WebResult(html=html_result)
