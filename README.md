@@ -30,7 +30,3 @@ Finally, the WMS layers are added to the map. Depending on the WMS-layer you pro
 selected in the drop-down menu. Once selected, the map will automatically reload and display the layers on the map.
 
 ![Step3](.viktor-template/step3.gif "Step 3")
-
-## App structure
-
-This is an editor-only app type.
