@@ -1,7 +1,8 @@
-from io import BytesIO
-from io import StringIO
+import folium
+import lxml
+from owslib.wms import WebMapService
+from requests import RequestException
 
-import folium.plugins
 from viktor import UserError
 from viktor import ViktorController
 from viktor.core import File
@@ -19,12 +20,6 @@ from viktor.views import DataResult
 from viktor.views import DataView
 from viktor.views import WebResult
 from viktor.views import WebView
-
-# other third parties
-import folium
-import lxml
-from owslib.wms import WebMapService
-from requests import RequestException
 
 
 WMS_DEFAULT = "https://service.pdok.nl/wandelnet/regionale-wandelnetwerken/wms/v1_0?version=1.3.0&request=getcapabilities&service=wms"
@@ -268,6 +263,6 @@ class Controller(ViktorController):
             version=params.wms_details.wms_version,
         ).add_to(m)
         folium.LayerControl().add_to(m)
-        html_result = BytesIO()
-        m.save(html_result, close_file=False)
-        return WebResult(html=StringIO(html_result.getvalue().decode("utf-8")))
+        html_result = File()
+        m.save(html_result.source)
+        return WebResult(html=html_result)
