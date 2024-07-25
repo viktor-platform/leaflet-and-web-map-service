@@ -1,4 +1,5 @@
 import folium
+from folium.plugins import Draw
 import lxml
 from owslib.wms import WebMapService
 from requests import RequestException
@@ -209,7 +210,7 @@ class Controller(ViktorController):
             show=True,
             version="1.3.0",
         ).add_to(m)
-        draw = folium.plugins.Draw(export=True)
+        draw = Draw(export=True)
         draw.add_to(m)
         folium.LayerControl().add_to(m)
         html_result = File()
