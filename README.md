@@ -1,5 +1,5 @@
-# WMS in Viktor
-This sample app demonstrates how to add WMS-layers to a VIKTOR app.
+# Leaflet and WMS in Viktor
+This sample app demonstrates how to add Leaflet and WMS-layers to a VIKTOR app.
 
 The goal of this app is to demonstrate how to add a WMS-layer to a map. This app was developed using the 
 open-source libraries `Leaflet`, `Folium` and `OWSLib`. Leaflet is a powerful open-source JavaScript library to create 
