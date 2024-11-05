@@ -4,23 +4,7 @@ import lxml
 from owslib.wms import WebMapService
 from requests import RequestException
 
-from viktor import UserError
-from viktor import ViktorController
-from viktor.core import File
-from viktor.parametrization import MultiSelectField
-from viktor.parametrization import OptionField
-from viktor.parametrization import SetParamsButton
-from viktor.parametrization import Step
-from viktor.parametrization import Text
-from viktor.parametrization import TextAreaField
-from viktor.parametrization import ViktorParametrization
-from viktor.result import SetParamsResult
-from viktor.views import DataGroup
-from viktor.views import DataItem
-from viktor.views import DataResult
-from viktor.views import DataView
-from viktor.views import WebResult
-from viktor.views import WebView
+import viktor as vkt
 
 
 WMS_DEFAULT = "https://service.pdok.nl/wandelnet/regionale-wandelnetwerken/wms/v1_0?version=1.3.0&request=getcapabilities&service=wms"
@@ -45,7 +29,7 @@ def _validate_wms_details(params, **kwargs) -> None:
     try:
         WebMapService(params.wms_details.wms_input, params.wms_details.wms_version)
     except (RequestException, lxml.etree.XMLSyntaxError):
-        raise UserError("Please enter a valid WMS-url first. Click on the button 'Use sample WMS' for an example.")
+        raise vkt.UserError("Please enter a valid WMS-url first. Click on the button 'Use sample WMS' for an example.")
 
 
 def connect_to_WMS(wms_url: str, wms_version: str) -> WebMapService:
@@ -53,9 +37,9 @@ def connect_to_WMS(wms_url: str, wms_version: str) -> WebMapService:
     try:
         wms = WebMapService(wms_url, version=wms_version)
     except RequestException:
-        raise UserError("The provided url seems to be incorrect. Please check input for WMS url.")
+        raise vkt.UserError("The provided url seems to be incorrect. Please check input for WMS url.")
     except lxml.etree.XMLSyntaxError:
-        raise UserError("The provided url does not seem to point at a WMS-layer, please check input for WMS url.")
+        raise vkt.UserError("The provided url does not seem to point at a WMS-layer, please check input for WMS url.")
     return wms
 
 
@@ -67,11 +51,11 @@ def get_WMS_details(wms: WebMapService) -> dict:
     return {"Base url": base_url, "Layers": layers, "Name": name}
 
 
-class Parametrization(ViktorParametrization):
+class Parametrization(vkt.ViktorParametrization):
     """Parametrization for the sample Leaflet app."""
 
-    introduction = Step("Introduction", views=["leaflet_introduction"])
-    introduction.welcome_text = Text(
+    introduction = vkt.Step("Introduction", views=["leaflet_introduction"])
+    introduction.welcome_text = vkt.Text(
         "# WMS in VIKTOR  \n"
         "Welcome to the WMS app. In this app is shown how WMS layers are added to a VIKTOR app. This is done using the "
         "Python package Folium and Leaflet."
@@ -100,8 +84,8 @@ class Parametrization(ViktorParametrization):
         "[Folium](https://pypi.org/project/folium/). Easy!"
     )
 
-    wms_details = Step("WMS set-up", views=["show_wms_details"], on_next=_validate_wms_details)
-    wms_details.text = Text(
+    wms_details = vkt.Step("WMS set-up", views=["show_wms_details"], on_next=_validate_wms_details)
+    wms_details.text = vkt.Text(
         "# WMS set-up  \n"
         "In this step we will gather the information required in order to add your own WMS-layer to your map.  \n"
         "## WMS in Leaflet  \n"
@@ -120,23 +104,23 @@ class Parametrization(ViktorParametrization):
         "In the Netherlands, [PDOK](https://www.pdok.nl/datasets) is the main provider of public WMS-layers. A lot"
         " of interesting examples can be found on their website. \n"
     )
-    wms_details.set_sample_wms = SetParamsButton("Use sample WMS", "set_sample_wms")
-    wms_details.wms_input = TextAreaField("WMS url", description="Please enter the WMS url here", flex=100)
-    wms_details.wms_version = OptionField(
+    wms_details.set_sample_wms = vkt.SetParamsButton("Use sample WMS", "set_sample_wms")
+    wms_details.wms_input = vkt.TextAreaField("WMS url", description="Please enter the WMS url here", flex=100)
+    wms_details.wms_version = vkt.OptionField(
         "WMS version",
         options=["1.1.1", "1.3.0"],
         default="1.3.0",
         description="Enter the version of the WMS-layer here. The most common version is version 1.3.0",
     )
-    wms_details.fmt_format = OptionField(
+    wms_details.fmt_format = vkt.OptionField(
         "Format",
         options=["image/png", "image/jpeg"],
         default="image/png",
         description="Format of data of the WMS. More options are generally available, but to keep it simple only png "
         "and jpg are included in this app. Default is png.",
     )
-    wms_map = Step("Custom WMS", views=["custom_wms_map"])
-    wms_map.text = Text(
+    wms_map = vkt.Step("Custom WMS", views=["custom_wms_map"])
+    wms_map.text = vkt.Text(
         "# Custom WMS map  \n"
         "Now everything is set up, the WMS-layer can be added to the map. Just select the layers to display on the map."
         " Wait for the map "
@@ -145,10 +129,10 @@ class Parametrization(ViktorParametrization):
         "*Note: depending on the WMS-layer you are using, you might need to zoom in or zoom out to see the layer "
         "appear on the map.*"
     )
-    wms_map.layer_options = MultiSelectField("Display layers", options=_get_layer_options)
+    wms_map.layer_options = vkt.MultiSelectField("Display layers", options=_get_layer_options)
 
 
-class Controller(ViktorController):
+class Controller(vkt.ViktorController):
     """Controller for the sample Leaflet app."""
 
     viktor_enforce_field_constraints = True  # Resolves upgrade instruction https://docs.viktor.ai/sdk/upgrades#U83
@@ -156,8 +140,8 @@ class Controller(ViktorController):
     label = "WMS map controller"
     parametrization = Parametrization
 
-    @WebView("Leaflet sample map", duration_guess=1)
-    def leaflet_introduction(self, params, **kwargs) -> WebResult:
+    @vkt.WebView("Leaflet sample map", duration_guess=1)
+    def leaflet_introduction(self, params, **kwargs) -> vkt.WebResult:
         """Create and show a sample leaflet map"""
         m = folium.Map(location=[51.922408, 4.4695292], zoom_start=13)
         folium.TileLayer(
@@ -213,40 +197,40 @@ class Controller(ViktorController):
         draw = Draw(export=True)
         draw.add_to(m)
         folium.LayerControl().add_to(m)
-        html_result = File()
+        html_result = vkt.File()
         m.save(html_result.source)
-        return WebResult(html=html_result)
+        return vkt.WebResult(html=html_result)
 
-    def set_sample_wms(self, params, **kwargs) -> SetParamsResult:
+    def set_sample_wms(self, params, **kwargs) -> vkt.SetParamsResult:
         """Fills in the sample WMS to the params"""
-        return SetParamsResult({"wms_details": {"wms_input": WMS_DEFAULT}})
+        return vkt.SetParamsResult({"wms_details": {"wms_input": WMS_DEFAULT}})
 
-    @DataView("WMS details", duration_guess=1)
-    def show_wms_details(self, params, **kwargs) -> DataResult:
+    @vkt.DataView("WMS details", duration_guess=1)
+    def show_wms_details(self, params, **kwargs) -> vkt.DataResult:
         """Shows the details of the WMS layer, such as the base url, layers and the name."""
         if not params.wms_details.wms_input:
-            data = DataGroup(DataItem("Pleas enter a WMS url", None))
+            data = vkt.DataGroup(vkt.DataItem("Pleas enter a WMS url", None))
         else:
             wms = connect_to_WMS(params.wms_details.wms_input, params.wms_details.wms_version)
             wms_details = get_WMS_details(wms)
-            data = DataGroup(
-                base_url=DataItem("Base url", wms_details["Base url"]),
-                layers=DataItem(
+            data = vkt.DataGroup(
+                base_url=vkt.DataItem("Base url", wms_details["Base url"]),
+                layers=vkt.DataItem(
                     "Layers",
                     f"{len(wms_details['Layers'])} layers",
-                    subgroup=DataGroup(
+                    subgroup=vkt.DataGroup(
                         *[
-                            DataItem(f"Layer {index}", layer)
+                            vkt.DataItem(f"Layer {index}", layer)
                             for index, layer in enumerate(wms_details["Layers"], start=1)
                         ]
                     ),
                 ),
-                name=DataItem("Name", wms_details["Name"]),
+                name=vkt.DataItem("Name", wms_details["Name"]),
             )
-        return DataResult(data)
+        return vkt.DataResult(data)
 
-    @WebView("Custom WMS map", duration_guess=1)
-    def custom_wms_map(self, params, **kwargs) -> WebResult:
+    @vkt.WebView("Custom WMS map", duration_guess=1)
+    def custom_wms_map(self, params, **kwargs) -> vkt.WebResult:
         """Creates a map with the WMS-layer, as specified by the user."""
         m = folium.Map(location=[51.922408, 4.4695292], zoom_start=13)
         wms = connect_to_WMS(params.wms_details.wms_input, params.wms_details.wms_version)
@@ -264,6 +248,6 @@ class Controller(ViktorController):
             version=params.wms_details.wms_version,
         ).add_to(m)
         folium.LayerControl().add_to(m)
-        html_result = File()
+        html_result = vkt.File()
         m.save(html_result.source)
-        return WebResult(html=html_result)
+        return vkt.WebResult(html=html_result)
